@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Christmas Adventure</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+      body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to bottom, #2b1055, #7597de);
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+}
+
+.landing-page {
+  padding: 50px 20px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.gift-doors {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.gift-door {
+  width: 100px;
+  height: 150px;
+  background: #ffcc00;
+  border: 5px solid #d2691e;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.gift-door:hover {
+  transform: scale(1.1);
+}
+
+.gift-door p {
+  font-size: 1.2rem;
+  color: #000;
+  font-weight: bold;
+}
+
+.message {
+  margin-top: 20px;
+  font-size: 1.5rem;
+}
+
+#snowfall {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.xmas-messages {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #f4f4f4;
+  margin: 20px 0;
+  animation: fadeInOut 5s infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+
+.music-controls {
+  margin-top: 20px;
+}
+
+#toggle-music {
+  background: #ffcc00;
+  color: #000;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#toggle-music:hover {
+  background: #d2691e;
+  color: #fff;
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="landing-page">
+    <h1>🎄 Welcome to the Christmas Adventure! 🎁</h1>
+    <div class="gift-doors">
+      <div class="gift-door" data-gift="🎅"><p>Open</p></div>
+      <div class="gift-door" data-gift="❄️"><p>Open</p></div>
+      <div class="gift-door" data-gift="🎁"><p>Open</p></div>
+    </div>
+    <p class="xmas-messages"></p>
+    <p class="message"></p>
+   <audio id="xmas-music" autoplay loop>
+  <source src="https://freemusicarchive.org/music/The_8bitpeoples/The_8bits_of_Christmas/8bp038-08-hally-xmas_songs_plastic_sputnik_arcade_punk_mix/" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+<div class="music-controls">
+  <button id="toggle-music">🔊 Pause Music</button>
+</div>
+
+  </div>
+  <canvas id="snowfall"></canvas>
+  <script src="script.js"></script>
+  <script>
+      // Handle Gift Door Opening
+const doors = document.querySelectorAll('.gift-door');
+const message = document.querySelector('.message');
+
+doors.forEach((door) => {
+  door.addEventListener('click', () => {
+    const gift = door.dataset.gift;
+    message.textContent = `You discovered: ${gift}`;
+    door.innerHTML = gift;
+    door.style.pointerEvents = 'none'; // Prevent multiple clicks
+  });
+});
+
+// Snowfall Effect
+const canvas = document.getElementById('snowfall');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const snowflakes = Array(100).fill().map(() => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  r: Math.random() * 3 + 1,
+  d: Math.random() * 50
+}));
+
+function drawSnowflakes() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'white';
+  ctx.beginPath();
+  snowflakes.forEach((snow) => {
+    ctx.moveTo(snow.x, snow.y);
+    ctx.arc(snow.x, snow.y, snow.r, 0, Math.PI * 2, true);
+  });
+  ctx.fill();
+  updateSnowflakes();
+}
+
+function updateSnowflakes() {
+  snowflakes.forEach((snow) => {
+    snow.y += Math.random() * 3 + 1;
+    snow.x += Math.sin(snow.d) * 2;
+    if (snow.y > canvas.height) {
+      snow.y = 0;
+      snow.x = Math.random() * canvas.width;
+    }
+  });
+}
+
+function animateSnowfall() {
+  drawSnowflakes();
+  requestAnimationFrame(animateSnowfall);
+}
+
+// Christmas Messages
+const messages = [
+  "🎄 Merry Christmas and Happy Holidays! 🎅",
+  "❄️ Wishing you a season full of joy and cheer! 🎁",
+  "🎉 May your Christmas be merry and bright! ✨",
+  "🎶 Let it snow! Let it snow! Let it snow! ❄️",
+  "🎁 Don't forget to open your heart to the season's magic! ❤️"
+];
+
+const messageElement = document.querySelector('.xmas-messages');
+
+let currentMessageIndex = 0;
+
+function changeMessage() {
+  messageElement.textContent = messages[currentMessageIndex];
+  currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+}
+
+setInterval(changeMessage, 5000); // Change message every 5 seconds
+changeMessage(); // Initialize the first message
+
+// Music Controls
+const music = document.getElementById('xmas-music');
+const toggleMusicButton = document.getElementById('toggle-music');
+
+toggleMusicButton.addEventListener('click', () => {
+  if (music.paused) {
+    music.play();
+    toggleMusicButton.textContent = '🔊 Pause Music';
+  } else {
+    music.pause();
+    toggleMusicButton.textContent = '🔇 Play Music';
+  }
+});
+
+
+
+animateSnowfall();
+
+  </script>
+</body>
+</html>
